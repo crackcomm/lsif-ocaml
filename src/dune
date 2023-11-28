@@ -1,7 +1,14 @@
 (executables
  (modules main)
- (libraries core core.uuid ppx_deriving_yojson ppx_deriving_yojson.runtime)
- (preprocess (pps ppx_deriving_yojson ppx_let ppx_deriving.show))
+ (libraries
+  core
+  core_unix
+  core_unix.sys_unix
+  core_unix.command_unix
+  ppx_deriving_yojson
+  ppx_deriving_yojson.runtime)
+ (preprocess
+  (pps ppx_deriving_yojson ppx_let ppx_deriving.show))
  (names main))
 
 (alias
@@ -11,4 +18,5 @@
 (install
  (package lsif-ocaml)
  (section bin)
- (files (main.exe as lsif-ocaml)))
+ (files
+  (main.exe as lsif-ocaml)))

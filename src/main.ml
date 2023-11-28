@@ -1,7 +1,8 @@
 open Core
 open Command.Let_syntax
 
-open Polymorphic_compare
+let ( = ) = Stdlib.( = )
+let ( <> ) = Stdlib.( <> )
 
 module Json = Yojson.Safe
 
@@ -205,15 +206,15 @@ type 'a next =
 
 let fold_directory root ~init ~f =
   let rec aux acc absolute_path depth =
-    if Sys.is_file absolute_path = `Yes then
+    if Sys_unix.is_file absolute_path = `Yes then
       match f acc ~depth ~absolute_path ~is_file:true with
       | Continue acc
       | Skip acc -> acc
-    else if Sys.is_directory absolute_path = `Yes then
+    else if Sys_unix.is_directory absolute_path = `Yes then
       match f acc ~depth ~absolute_path ~is_file:false with
       | Skip acc -> acc
       | Continue acc ->
-        Sys.ls_dir absolute_path
+        Sys_unix.ls_dir absolute_path
         |> List.fold ~init:acc ~f:(fun acc subdir ->
             aux acc (Filename.concat absolute_path subdir) (depth + 1))
     else
@@ -402,11 +403,11 @@ let main host project_root exclude_directories local_absolute_root strip_prefix 
       let relative_filepath = String.chop_prefix_exn absolute_filepath ~prefix:strip_prefix in
       let document = make_document host project_root relative_filepath absolute_filepath in
       let document =
-        match String.Table.find document_id_table absolute_filepath with
+        match Hashtbl.find document_id_table absolute_filepath with
         | Some id -> { document with id = Int.to_string id }
         | None ->
           let id = Int.of_string (fresh ()) in
-          String.Table.add_exn document_id_table ~key:absolute_filepath ~data:id;
+          Hashtbl.add_exn document_id_table ~key:absolute_filepath ~data:id;
           let document = { document with id = Int.to_string id } in
           Format.printf "%s@." @@ print document;
           let document_in_project_edge =
@@ -488,7 +489,7 @@ let main host project_root exclude_directories local_absolute_root strip_prefix 
                        | filepath -> filepath
                      in
                      let document =
-                       match String.Table.find document_id_table destination_file with
+                       match Hashtbl.find document_id_table destination_file with
                        | Some id ->
                          (* Case where this was already printed the previous time we added to the table. *)
                          Some { document with id = Int.to_string id }
@@ -501,7 +502,7 @@ let main host project_root exclude_directories local_absolute_root strip_prefix 
                          | Some relative_filepath ->
                            let document = make_document host project_root relative_filepath absolute_filepath in
                            let id = Int.of_string (fresh ()) in
-                           String.Table.add_exn document_id_table ~key:destination_file ~data:id;
+                           Hashtbl.add_exn document_id_table ~key:destination_file ~data:id;
                            let document = { document with id = Int.to_string id } in
                            Format.printf "%s@." @@ print document;
                            let document_in_project_edge =
@@ -574,7 +575,7 @@ let parameters : (unit -> 'result) Command.Param.t =
         | Some project_root -> project_root
         | None ->
           try
-            Unix.open_process_in "git config --get remote.origin.url"
+            Core_unix.open_process_in "git config --get remote.origin.url"
             |> In_channel.input_all
             |> String.substr_replace_all ~pattern:"https://github.com/" ~with_:""
             |> String.substr_replace_all ~pattern:".git" ~with_:""
@@ -583,8 +584,8 @@ let parameters : (unit -> 'result) Command.Param.t =
             Format.eprintf "Name the project root, like '-e user/project', where user/project is the part coming from github.com/user/project.";
             exit 1
       in
-      let local_root = Sys.getcwd () in
-      let strip_prefix = Sys.getcwd () in
+      let local_root = Sys_unix.getcwd () in
+      let strip_prefix = Sys_unix.getcwd () in
       let emit_type_hovers, emit_definitions =
         match emit_type_hovers, emit_definitions with
         | false, false -> true, true
@@ -602,4 +603,4 @@ let () =
        host is github.com\n \
        project-root is username/github-project\n \
        directories is computed from the root of where this command is run."
-  |> Command.run ~version:"0.1.0"
+  |> Command_unix.run ~version:"0.1.0"
