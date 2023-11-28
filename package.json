@@ -1,0 +1,44 @@
+{
+  "esy": {
+    "buildsInSource": true
+  },
+  "dependencies": {
+    "@opam/core": "v0.16.2",
+    "@opam/core_unix": "v0.16.0",
+    "@opam/dune": "3.10.0",
+    "@opam/ppx_deriving": "5.2.1",
+    "@opam/ppx_deriving_yojson": "3.7.0",
+    "@opam/ppx_let": "v0.16.0",
+    "@opam/merlin-lib": "4.12-414",
+    "ocaml": "4.14.1000"
+  },
+  "resolutions": {
+    "@opam/astring": "dune-universe/astring:astring.opam#d907613",
+    "@opam/easy-format": {
+      "source": "ocaml-community/easy-format:easy-format.opam#ba49628",
+      "override": {
+        "build": "dune build -p easy-format -j 12"
+      }
+    },
+    "@opam/fpath": {
+      "source": "dune-universe/fpath:fpath.opam#becfa26",
+      "override": {
+        "dependencies": {
+          "@opam/result": "*"
+        }
+      }
+    },
+    "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#c6eafd8",
+    "@opam/ocamlformat": "ocaml-ppx/ocamlformat:ocamlformat.opam#bc91e42",
+    "@opam/ocamlformat-lib": "ocaml-ppx/ocamlformat:ocamlformat-lib.opam#bc91e42",
+    "@opam/topkg": "dune-universe/topkg:topkg.opam#6452158",
+    "@opam/uucp": "dune-universe/uucp:uucp.opam#4f3f1dd",
+    "@opam/uuseg": "dune-universe/uuseg:uuseg.opam#491e2ee",
+    "@opam/uutf": "dune-universe/uutf:uutf.opam#6944629",
+    "ocaml": "crackcomm/ocaml#f665cab"
+  },
+  "devDependencies": {
+    "@opam/ocamlformat": "*",
+    "@opam/ocaml-lsp-server": "*"
+  }
+}
